@@ -25,7 +25,7 @@ print(f"Classes (Quality Scores): {classes} \n")
 mu_wine = np.zeros((C, d))
 Cov_wine = []
 prior_wine = np.zeros(C)
-alpha = 0.001 
+alpha = 0.01 
 
 for i,c in enumerate(classes):
     Xi = X_wine[labels_wine == c]
@@ -142,7 +142,7 @@ activity_names = ['Walking', 'Walking Upstairs', 'Walking Downstairs',
 mu_har = np.zeros((C_har,d_har))
 Cov_har = []
 prior_har = np.zeros(C_har)
-alpha_har = 0.001
+alpha_har = 0.01
 
 for i, c in enumerate(classes_har):
     Xi = X_har[labels_har == c]
@@ -156,13 +156,14 @@ for i, c in enumerate(classes_har):
     if i < len(activity_names):
         print(f"Class {c} ({activity_names[i]}): {Ni}")
 print("\n")
-posterior_har = np.zeros((N_har,C_har))
+
+log_posterior_har = np.zeros((N_har, C_har))
 
 for i, c in enumerate(classes_har):
     rv = multivariate_normal(mean=mu_har[i], cov=Cov_har[i], allow_singular=True)
-    posterior_har[:, i] = rv.pdf(X_har) * prior_har[i]
+    log_posterior_har[:, i] = rv.logpdf(X_har) + np.log(prior_har[i])
 
-predictions_har = classes_har[np.argmax(posterior_har, axis=1)]
+predictions_har = classes_har[np.argmax(log_posterior_har, axis=1)]
 Conf_mat_har = np.zeros((C_har,C_har))
 
 for i in range(N_har):
