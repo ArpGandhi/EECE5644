@@ -13,8 +13,8 @@ red_wine = pd.read_csv('wine_quality/winequality-red.csv', delimiter=';')
 white_wine = pd.read_csv('wine_quality/winequality-white.csv', delimiter=';')
 
 wine_data = pd.concat([red_wine, white_wine], axis=0, ignore_index=True)
-X_wine = wine_data.iloc[:, :-1].values
-labels_wine = wine_data.iloc[:, -1].values
+X_wine = wine_data.iloc[:,:-1].values
+labels_wine = wine_data.iloc[:,-1].values
 N, d = X_wine.shape
 classes = np.unique(labels_wine)
 C = len(classes)
@@ -74,8 +74,8 @@ X_pca_wine = pca_wine.fit_transform(X_wine)
 explained_var = pca_wine.explained_variance_ratio_
 print(f"Variance explained by first 2 PCs: {100*sum(explained_var[:2]):.2f}% \n")
 
-fig, ax = plt.subplots(figsize=(12, 8))
-colors = plt.cm.tab10(np.linspace(0, 1, C))
+fig, ax = plt.subplots(figsize=(12,8))
+colors = plt.cm.tab10(np.linspace(0,1,C))
 markers = ['o', 's', '^', 'd', 'v', '>', '<', 'p', 'h', '*']
 
 for i,c in enumerate(classes):
@@ -101,10 +101,10 @@ ax.set_title(f'Wine Quality Classification (P(error)={P_error_wine:.4f})\n' +
 ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=9)
 ax.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('wine_quality_2d.png', dpi=300, bbox_inches='tight')
+plt.savefig('Q3_ops/wine_quality_2d.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-fig = plt.figure(figsize=(12, 9))
+fig = plt.figure(figsize=(12,9))
 ax = fig.add_subplot(111, projection='3d')
 
 for i, c in enumerate(classes):
@@ -119,7 +119,7 @@ ax.set_xlabel('PC1', fontsize=12)
 ax.set_ylabel('PC2', fontsize=12)
 ax.set_zlabel('PC3', fontsize=12)
 ax.set_title('Wine Quality - 3D PCA Projection', fontsize=13)
-ax.legend(bbox_to_anchor=(1.15, 1), loc='upper left', fontsize=9)
+ax.legend(bbox_to_anchor=(1.15,1), loc='upper left', fontsize=9)
 plt.tight_layout()
 plt.savefig('Q3_ops/wine_quality_3d.png', dpi=300, bbox_inches='tight')
 plt.show()
@@ -130,7 +130,7 @@ y_train = np.loadtxt('human_activity_ecognition_using_smartphones/UCI HAR Datase
 X_test = np.loadtxt('human_activity_ecognition_using_smartphones/UCI HAR Dataset/test/X_test.txt')
 y_test = np.loadtxt('human_activity_ecognition_using_smartphones/UCI HAR Dataset/test/y_test.txt')
 
-X_har = np.vstack([X_train, X_test])
+X_har = np.vstack([X_train,X_test])
 labels_har = np.concatenate([y_train, y_test]).astype(int)
 N_har, d_har = X_har.shape
 classes_har = np.unique(labels_har)
@@ -149,7 +149,7 @@ for i, c in enumerate(classes_har):
     Ni = len(Xi)
     mu_har[i] = np.mean(Xi, axis=0)
     Cov_sample = np.cov(Xi.T)
-    lambda_reg = alpha_har * np.trace(Cov_sample) / np.linalg.matrix_rank(Cov_sample)
+    lambda_reg = alpha_har * np.trace(Cov_sample)/np.linalg.matrix_rank(Cov_sample)
     Cov_reg = Cov_sample + lambda_reg * np.eye(d_har)
     Cov_har.append(Cov_reg)
     prior_har[i] = Ni/N_har
@@ -163,12 +163,12 @@ for i, c in enumerate(classes_har):
     posterior_har[:, i] = rv.pdf(X_har) * prior_har[i]
 
 predictions_har = classes_har[np.argmax(posterior_har, axis=1)]
-Conf_mat_har = np.zeros((C_har, C_har))
+Conf_mat_har = np.zeros((C_har,C_har))
 
 for i in range(N_har):
     true_idx = np.where(classes_har == labels_har[i])[0][0]
     pred_idx = np.where(classes_har == predictions_har[i])[0][0]
-    Conf_mat_har[pred_idx, true_idx] += 1
+    Conf_mat_har[pred_idx, true_idx]+= 1
 
 Conf_mat_har = Conf_mat_har/Conf_mat_har.sum(axis=0, keepdims=True)
 
@@ -189,13 +189,13 @@ print()
 P_error_har = np.mean(predictions_har!= labels_har)
 print(f"Probability of Error: {P_error_har:.4f} \n")
 
-pca_har = PCA(n_components=5)
+pca_har = PCA(n_components=7)
 X_pca_har = pca_har.fit_transform(X_har)
 explained_var_har = pca_har.explained_variance_ratio_
-print(f"Variance explained by first 2 PCs: {100*sum(explained_var_har[:2]):.2f}% \n")
+print(f"Variance explained by first 6 PCs: {100*sum(explained_var_har[:6]):.2f}% \n")
 
-fig, ax = plt.subplots(figsize=(12, 8))
-colors_har = plt.cm.tab10(np.linspace(0, 1, C_har))
+fig, ax = plt.subplots(figsize=(12,8))
+colors_har = plt.cm.tab10(np.linspace(0,1,C_har))
 
 for i, c in enumerate(classes_har):
     class_mask = labels_har == c
@@ -216,13 +216,13 @@ ax.set_xlabel('First Principal Component', fontsize=12)
 ax.set_ylabel('Second Principal Component', fontsize=12)
 ax.set_title(f'Human Activity Recognition (P(error)={P_error_har:.4f})\n' +
              'Circle=Correct, X=Incorrect', fontsize=13)
-ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10)
+ax.legend(bbox_to_anchor=(1.05,1), loc='upper left', fontsize=10)
 ax.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('har_2d.png', dpi=300, bbox_inches='tight')
+plt.savefig('Q3_ops/har_2d.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-fig = plt.figure(figsize=(12, 9))
+fig = plt.figure(figsize=(12,9))
 ax = fig.add_subplot(111, projection='3d')
 
 for i, c in enumerate(classes_har):
