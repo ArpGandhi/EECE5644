@@ -33,9 +33,9 @@ def generateData(N):
     gmmParameters['priors'] = [.3,.4,.3]
     gmmParameters['meanVectors'] = np.array([[-10, 0, 10],[0, 0, 0],[10, 0, -10]])
     gmmParameters['covMatrices'] = np.zeros((3, 3, 3))
-    gmmParameters['covMatrices'][:, :, 0] = np.array([[1, 0, -3],[0, 1, 0],[-3, 0, 15]])
-    gmmParameters['covMatrices'][:, :, 1] = np.array([[8, 0, 0],[0, .5, 0],[0, 0, .5]])
-    gmmParameters['covMatrices'][:, :, 2] = np.array([[1, 0, -3],[0, 1, 0],[-3, 0, 15]])
+    gmmParameters['covMatrices'][:,:,0] = np.array([[1, 0, -3],[0, 1, 0],[-3, 0, 15]])
+    gmmParameters['covMatrices'][:,:,1] = np.array([[8, 0, 0],[0, .5, 0],[0, 0, .5]])
+    gmmParameters['covMatrices'][:,:,2] = np.array([[1, 0, -3],[0, 1, 0],[-3, 0, 15]])
     x, labels = generateDataFromGMM(N, gmmParameters)
     return x
 
@@ -120,7 +120,6 @@ w_best = map_estimator(xTrain,yTrain,best_gamma,sigma_squared)
 
 print(f"\nBest \u03B3: {best_gamma:.4e}")
 print(f"Best MAP Validation MSE: {best_mse_val:.4f}")
-print(f"ML Validation MSE: {mse_ml_val:.4f}")
 print(f"Improvement: {((mse_ml_val-best_mse_val)/mse_ml_val*100):.2f}%")
 
 fig = plt.figure(figsize=(16, 12))
@@ -142,7 +141,7 @@ ax3 = fig.add_subplot(3, 3, 3)
 ax3.semilogx(gamma_values, mse_map_val, 'b-', linewidth=2.5, label='MAP Validation MSE')
 ax3.axhline(y=mse_ml_val, color='r', linestyle='--', linewidth=2, label='ML Validation MSE')
 ax3.axvline(x=best_gamma, color='g', linestyle=':', linewidth=2, 
-           label=r'Optimal $\gamma$ = {best_gamma:.2e}')
+           label=r'Optimal $\gamma$ =' f'{best_gamma:.2e}')
 ax3.scatter([best_gamma], [best_mse_val], color='g', s=100, zorder=5, marker='*')
 ax3.set_xlabel(r'$\gamma$ (prior variance)', fontsize=11)
 ax3.set_ylabel('Validation MSE', fontsize=11)
@@ -162,7 +161,7 @@ ax4.grid(True, alpha=0.3)
 
 ax5 = fig.add_subplot(3, 3, 5)
 ax5.loglog(gamma_values, w_norms, 'b-', linewidth=2.5)
-ax5.axvline(x=best_gamma, color='g', linestyle=':', linewidth=2, label=r'Optimal $\gamma$ = {best_gamma:.2e}')
+ax5.axvline(x=best_gamma, color='g', linestyle=':', linewidth=2, label=r'Optimal $\gamma$ =' f'{best_gamma:.2e}')
 ax5.axhline(y=np.linalg.norm(w_ml), color='r', linestyle='--',linewidth=2, label='ML weight norm')
 ax5.set_xlabel(r'$\gamma$ (prior variance)', fontsize=11)
 ax5.set_ylabel(r'$||w||_2$', fontsize=11)

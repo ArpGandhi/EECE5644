@@ -67,15 +67,16 @@ X_train_5000,y_train_5000 = generate_data(5000)
 X_validate,y_validate = generate_data(10000)
 
 print(f"Training sets: {len(X_train_50)}, {len(X_train_500)}, {len(X_train_5000)}")
-print(f"Validation set: {len(X_validate)}")
+print(f"Validation set: {len(X_validate)}\n")
 
 y_pred_optimal,scores_optimal = optimal_classifier(X_validate)
 error_optimal = np.mean(y_pred_optimal!=y_validate)
-print(f"Optimal classifier error: {error_optimal:.4f}")
+print(f"Optimal classifier error: {error_optimal:.4f}\n")
 
 fpr,tpr,thresholds = roc_curve(y_validate,scores_optimal)
 roc_auc = auc(fpr,tpr)
 threshold_idx = np.argmin(np.abs(thresholds-0.5))
+print(f"using tpr and fpr for min(p_err) = p(L=0)fpr+p(L=1)(1-tpr) = {prior_L0*fpr[threshold_idx] + prior_L1*(1-tpr[threshold_idx])}\n")
 
 plt.figure(figsize=(10,8))
 plt.plot(fpr, tpr, 'b-', linewidth=2, label=f'ROC curve (AUC = {roc_auc:.3f})')
@@ -132,7 +133,7 @@ error_linear_500,_ = evaluate_logistic_model(w_linear_500,X_validate,y_validate,
 error_linear_5000,_ = evaluate_logistic_model(w_linear_5000,X_validate,y_validate,logistic_linear_features)
 print(f"Linear model (N=50) error: {error_linear_50:.4f}")
 print(f"Linear model (N=500) error: {error_linear_500:.4f}")
-print(f"Linear model (N=5000) error: {error_linear_5000:.4f}")
+print(f"Linear model (N=5000) error: {error_linear_5000:.4f}\n")
 
 w_quad_50 = train_logistic_model(X_train_50,y_train_50,logistic_quadratic_features)
 w_quad_500 = train_logistic_model(X_train_500,y_train_500,logistic_quadratic_features)
@@ -155,8 +156,8 @@ def plot_decision_boundary(w,feature_func,X,y,title,filename):
     Z_pred = sigmoid(Z@w).reshape(xx.shape)
     
     plt.figure(figsize=(10, 8))
-    plt.contourf(xx, yy, Z_pred, levels=[0, 0.5, 1], alpha=0.3, colors=['blue','red'])
-    plt.contour(xx, yy, Z_pred, levels=[0.5], colors='black', linewidths=2)
+    plt.contourf(xx,yy,Z_pred,levels=[0, 0.5, 1], alpha=0.3, colors=['blue','red'])
+    plt.contour(xx,yy,Z_pred,levels=[0.5], colors='black', linewidths=2)
     plt.scatter(X[y==0,0], X[y==0,1], c='blue', marker='o', s=20, alpha=0.6, label='Class 0')
     plt.scatter(X[y==1,0], X[y==1,1], c='red', marker='s', s=20, alpha=0.6, label='Class 1')
     plt.xlabel('x1', fontsize=12)

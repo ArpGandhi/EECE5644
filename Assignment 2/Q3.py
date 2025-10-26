@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 
+np.random.seed(100)
+
 def map_objective(pos,landmarks,measurements,sigma_i,sigma_x,sigma_y):
     x,y = pos
     likelihood_term = 0
@@ -34,10 +36,6 @@ true_position = np.array([0.3,0.4])
 sigma_i = 0.3
 sigma_x = sigma_y = 0.25
 
-print(f"\nTrue vehicle position: {true_position}")
-print(f"Noise \u03C3: {sigma_i}")
-print(f"\u03C3x = \u03C3y: {sigma_x}")
-
 fig, axes = plt.subplots(2,2,figsize=(16,14))
 axes = axes.flatten()
 K_values = [1,2,3,4]
@@ -48,13 +46,13 @@ for idx, K in enumerate(K_values):
     landmarks = generate_landmarks(K)
     measurements = generate_measurements(true_position, landmarks, sigma_i)
     
-    print(f"\nLandmarks (on unit circle):")
+    print(f"Landmarks (on unit circle):")
     for i, lm in enumerate(landmarks):
-        print(f"Landmark {i+1}: [{lm[0]:6.3f},{lm[1]:6.3f}]")
+        print(f"Landmark {i+1}: [{lm[0]:6.3f},{lm[1]:6.3f}],",flush=True)
 
     for i, m in enumerate(measurements):
         true_dist = np.linalg.norm(true_position - landmarks[i])
-        print(f"r{i+1} = {m:.4f} (true distance = {true_dist:.4f}, error = {m-true_dist:+.4f})")
+        print(f"r{i+1} = {m:.4f} (true distance = {true_dist:.4f}, noise_error = {m-true_dist:+.4f})", flush=True)
     
     x_range = np.linspace(-2,2,200)
     y_range = np.linspace(-2,2,200)
@@ -74,10 +72,10 @@ for idx, K in enumerate(K_values):
     map_estimate = result.x
     
     error = np.linalg.norm(map_estimate - true_position)
-    print(f"\nMAP estimate: [{map_estimate[0]:.4f}, {map_estimate[1]:.4f}]")
+    print(f"MAP estimate: [{map_estimate[0]:.4f}, {map_estimate[1]:.4f}]")
     print(f"True position: [{true_position[0]:.4f}, {true_position[1]:.4f}]")
     print(f"Localization error: {error:.4f}")
-    print(f"Optimization success: {result.success}")
+    print(f"Optimization success: {result.success}\n")
     
     ax = axes[idx]
     contour = ax.contour(X_grid, Y_grid, Z_grid, levels=contour_levels, 
@@ -108,45 +106,3 @@ for idx, K in enumerate(K_values):
 
 plt.tight_layout()
 plt.savefig('Assignment 2/outputs/q3_map_localization.png', dpi=150, bbox_inches='tight')
-
-n_trials = 20
-errors = {K: [] for K in K_values}
-
-np.random.seed(100)
-for K in K_values:
-    landmarks = generate_landmarks(K)
-    for trial in range(n_trials):
-        measurements = generate_measurements(true_position, landmarks, sigma_i)
-        result = minimize(map_objective, np.array([0.0, 0.0]),
-                         args=(landmarks, measurements, sigma_i, sigma_x, sigma_y),
-                         method='BFGS')
-        map_estimate = result.x
-        error = np.linalg.norm(map_estimate - true_position)
-        errors[K].append(error)
-
-print(f"{'K':>3} | {'Mean Error':>12} | {'Std Dev':>10} | {'Min':>8} | {'Max':>8}")
-for K in K_values:
-    mean_error = np.mean(errors[K])
-    std_error = np.std(errors[K])
-    min_error = np.min(errors[K])
-    max_error = np.max(errors[K])
-    print(f"{K:3d} | {mean_error:12.4f} | {std_error:10.4f} | " +
-          f"{min_error:8.4f} | {max_error:8.4f}")
-
-fig, ax = plt.subplots(1, 1, figsize=(10, 6))
-positions = range(1, len(K_values) + 1)
-bp = ax.boxplot([errors[K] for K in K_values], positions=positions,
-                widths=0.6, patch_artist=True,
-                boxprops=dict(facecolor='lightblue', alpha=0.7),
-                medianprops=dict(color='red', linewidth=2),
-                whiskerprops=dict(linewidth=1.5),
-                capprops=dict(linewidth=1.5))
-
-ax.set_xlabel('Number of Landmarks (K)',fontsize=13)
-ax.set_ylabel('Localization Error',fontsize=13)
-ax.set_title('MAP Estimate Accuracy vs Number of Landmarks',fontsize=14,fontweight='bold')
-ax.set_xticks(positions)
-ax.set_xticklabels(K_values)
-ax.grid(True,alpha=0.3,axis='y')
-plt.tight_layout()
-plt.savefig('Assignment 2/outputs/q3_error_analysis.png',dpi=150,bbox_inches='tight')
